@@ -5,18 +5,21 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 import os
-from app import app, db, login_manager
+from app import app
+from app import db, login_manager
 from flask import render_template, request,  redirect, url_for, session, abort, send_from_directory,jsonify, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.utils import secure_filename,check_password_hash
-from app.models import user_car,user_fav, user
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.models import User_car,User_fav, User
+from .forms import RegisterForm
+
 ###
 # Routing for your application.
 ###
-@app.route('/api/upload', methods=["POST"])
+@app.route('/api/register', methods=["POST"])
 def register():
-    form="ADD form class"
-    User=""
+    form=RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
         photo=form.photo.data
         filename=secure_filename(photo.filename)
@@ -24,9 +27,9 @@ def register():
         username=request.form['username']
         password=request.form['password']
         user=User(username,password,request.form['fullname'],request.form['email'], request.form['location'], request.form['biography'],filename)
-        #db.session.add(user)
-        #db.session.commit()
-        successful={"message":"File Upload Successful", "user":username}
+        db.session.add(user)
+        db.session.commit()
+        successful={"message":"Registration Complete", "user":request.form['fullname']}
         return jsonify(successful=successful)
     else:
         errors={"errors":form_errors(form)}
@@ -90,7 +93,7 @@ def cars():
         transmis = request.form['transmission']
         car_type = request.form['car_type']
         price = request.form['price']
-        car=user_car(desc,make,model,color,year,transmis, car_type, price,filename)
+        car=User_car(desc,make,model,color,year,transmis, car_type, price,filename)
         #db.session.add(car)
         #db.session.commit()
         
@@ -103,7 +106,10 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
             ), 'danger')
-
+            
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
 # application.
