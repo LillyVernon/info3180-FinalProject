@@ -2,7 +2,7 @@ from . import db
 from werkzeug.security import generate_password_hash
 
 
-class user_car(db.Model):
+class User_car(db.Model):
     
     __tablename__ = 'user_car'
 
@@ -14,7 +14,7 @@ class user_car(db.Model):
     year = db.Column(db.String(225))
     transmis = db.Column(db.String(225))
     car_type = db.Column(db.String(225))
-    price = db.Column(db.Decimal(225))
+    price = db.Column(db.Float(225))
     user_id = db.Column(db.Integer)
     photo=db.Column(db.String(225))   
 
@@ -31,7 +31,7 @@ class user_car(db.Model):
 
  
     
-class user_fav(db.Model):
+class User_fav(db.Model):
      __tablename__ = 'user_fav'
 
      id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -39,7 +39,7 @@ class user_fav(db.Model):
      user_id = db.Column(db.Integer)
 
 
-class user(db.Model):
+class User(db.Model):
     __tablename__ = 'user'
      
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
