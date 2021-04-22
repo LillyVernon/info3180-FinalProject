@@ -1,3 +1,44 @@
 body {
     padding-top: 5rem;
+    background-color: #bbb0b0;
+}
+
+.registerform {
+    border-radius: 10px;
+    background-color: white;
+    padding: 10px;
+    max-width: 750px;
+    border: thin black;
+}
+
+textarea {
+    width: 250px;
+    height: 100px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: none;
+}
+
+input[type=text],
+input[type=password],
+input[type=email],
+input[type=file] {
+    width: 350px;
+    padding: 5px 20px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-right: 15px;
+}
+
+label {
+    padding-right: 290px;
+    margin: 10px 10px 3px 0px;
+}
+
+#location {
+    padding: 0;
 }
