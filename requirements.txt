@@ -14,12 +14,13 @@ WTForms==2.3.3
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-Script
+Flask-Login
 psycopg2
 
 # ----------------------
 # Production Server
 # ----------------------
-gunicorn
+
 alembic
 dnspython
 idna
