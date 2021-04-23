@@ -12,7 +12,11 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User_car,User_fav, User
+<<<<<<< HEAD
 from .forms import RegisterForm, AddCarForm
+=======
+from .forms import RegisterForm
+>>>>>>> 5a24992e8946ed2dc9db64653655d39dd48d54db
 
 ###
 # Routing for your application.
@@ -76,7 +80,10 @@ def logout():
 @app.route("/api/cars", methods=["POST", ])
 @login_required
 def cars():
+<<<<<<< HEAD
     form=AddCarForm()
+=======
+>>>>>>> 5a24992e8946ed2dc9db64653655d39dd48d54db
     if request.method == 'GET':
             
         cars=db.session.query(user_cars).all()
@@ -89,7 +96,11 @@ def cars():
         desc = request.form['description']
         make = request.form['make']
         model = request.form['model']
+<<<<<<< HEAD
         colour = request.form['colour']
+=======
+        color = request.form['color']
+>>>>>>> 5a24992e8946ed2dc9db64653655d39dd48d54db
         year = request.form['year']
         transmis = request.form['transmission']
         car_type = request.form['car_type']
