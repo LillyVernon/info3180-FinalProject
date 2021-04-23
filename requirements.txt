@@ -19,7 +19,7 @@ psycopg2
 # ----------------------
 # Production Server
 # ----------------------
-gunicorn
+
 alembic
 dnspython
 idna

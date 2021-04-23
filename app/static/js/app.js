@@ -21,6 +21,8 @@ app.component('app-header', {
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
+            <router-link to="/cars" class="nav-link">Car</router-link>
+
           </li>
         </ul>
       </div>
@@ -44,18 +46,264 @@ app.component('app-footer', {
     }
 });
 
-const Home = {
-    name: 'Home',
+const Register = {
+    name: 'register',
     template: `
-    <div class="jumbotron">
-        <h1>Lab 7</h1>
-        <p class="lead">In this lab we will demonstrate VueJS working with Forms and Form Validation from Flask-WTF.</p>
+    <h1>Registration</h1>
+    <div :class="errorclass"> 
+        <ul class="uploadmessage" v-for="message in messages">
+            <li >{{message}}</li>
+        </ul>
     </div>
+  
+        <form method="POST" id="registerForm"> 
+          <div class="form-group registerform">
+            <div class="First"> 
+                <label for="username"> Username</label>
+                <label for="password"> Password</label>
+                <br>
+                <input type="text">
+                <input type="password">
+         
+            </div>
+            <div> 
+                <label for="fullname"> Fullname</label>
+                <label for="email"> Email</label>
+                <br>
+                <input type="text">
+                 <input type="email">
+                
+            </div>
+            <label for="location" id="location"> Location</label><br>
+            <input type="text">
+            <br>
+            <label for="biography"> Biography</label><br>
+            <textarea type="text" name="biography" class="form-control"></textarea><br>
+            <label for="photo">Upload Photo </label>
+            <br> 
+            <input type="file" name="photo" id="photo" class="form-control" accept="image/*" draggable="true">
+            <br> 
+            <button type="submit" class="btn btn-success">Submit</button>
+        </div>
+            </form>
+    
     `,
     data() {
-        return {}
+        return {
+            messages: [],
+            className: ''
+        }
+    },
+    methods: {
+        RegisterUser() {
+            let self = this;
+            let registerForm = document.getElementById('registerForm');
+            let form_data = new FormData(registerForm)
+
+            fetch("/api/register", {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse['successful']) {
+                        self.messages = [jsonResponse['successful']['message']];
+                        self.className = "successful"
+                    } else {
+                        self.messages = jsonResponse['errors']['errors'];
+                        self.className = "errors"
+                    }
+
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        }
     }
 };
+
+
+const Cars = {
+    name: 'cars',
+    template: `
+    <h1>Add New Car</h1>
+    <div :class="errorclass"> 
+        <ul class="uploadmessage" v-for="message in messages">
+            <li >{{message}}</li>
+        </ul>
+    </div>
+    <form method="POST" id="carForm" enctype="multipart/form-data" @submit.prevent="RegisterCar">
+    <div class="row">
+    <div class="col-md-6">
+        <label>Make</label>
+        <input name="make" type="text"class="form-control"/>
+    </div>
+
+
+    <div class="col-md-6">
+        <label>Model</label>
+        <input  name="model"type="text" class="form-control"/>
+    </div>
+  </div>
+
+
+<div class="row">
+    <div class="col-md-6">
+        <label>Colour</label>
+        <input name="colour" type="text" class="form-control"/>
+    </div>
+
+
+    <div class="col-md-6">
+        <label>Year</label>
+        <input name="year" type= "text" class="form-control"/>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-6">
+       
+        <label>Price</label>
+        <input name="price" type="text"class="form-control"/>
+    </div>
+
+
+    <div class="col-md-6">
+       
+        <label>Car Type</label>
+        <input name="car_type" type="text"class="form-control"/>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <label>Transmission</label>
+        <input name="transmis" type="text"class="form-control"/>
+    </div>
+</div>   
+
+
+<div class="row">
+    <div class="col-sm-10">
+        
+        <label>Description</label>
+        <textarea name="desc" type="text"class="form-control"></textarea>
+        
+</div> 
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        
+            <label> Upload Photo</label>
+            <input name="photo" type="file" accept="image/*" class="form-control-file"/>
+        </div>
+    </div>
+    <br>
+
+<div class="col-lg-11">
+        <div class="form-group">  
+            <button type="save" class="btn btn-success"> Save</button>
+        </div>
+</div>
+</form>            
+                   
+    `,
+    data() {
+        return {
+            messages: [],
+            className: ''
+        }
+    },
+    methods: {
+        RegisterCar() {
+            let self = this;
+            let carForm = document.getElementById('carForm');
+            let form_data = new FormData(carForm)
+
+            fetch("/api/cars", {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse['successful']) {
+                        self.messages = [jsonResponse['successful']['message']];
+                        self.className = "successful"
+                    } else {
+                        self.messages = jsonResponse['errors']['errors'];
+                        self.className = "errors"
+                    }
+
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        }
+    }
+};
+
+
+
+
+
+const Login = {
+    name: 'login',
+    template: `
+    <div class="login-wrap">
+	<div class="login-html">
+		<h3> Login</3>
+		
+		<div class="login-form">
+			<div class="sign-in-htm">
+				<div class="group">
+					<label for="user" class="label">Username</label>
+					<input id="user" type="text" class="input">
+				</div>
+				<div class="group">
+					<label for="pass" class="label">Password</label>
+					<input id="pass" type="password" class="input" data-type="password">
+				</div>
+				<div class="group">
+					<input id="check" type="checkbox" class="check" checked>
+					<label for="check"><span class="icon"></span> Keep me Signed in</label>
+				</div>
+				<div class="group">
+					<input type="submit" class="button" value="Sign In">
+				</div>
+				<div class="hr"></div>
+			
+			</div>
+	
+		</div>
+	</div>
+</div>
+ 
+    `,
+    data() {
+        return {
+            messages: [],
+            className: ''
+        }
+    },
+
+};
+
 
 const NotFound = {
     name: 'NotFound',
@@ -71,7 +319,10 @@ const NotFound = {
 
 // Define Routes
 const routes = [
-    { path: "/", component: Home },
+    // { path: "/", component: Home },
+    { path: "/register", component: Register },
+    { path: "/login", component: Login },
+    { path: "/cars", component: Cars },
     // Put other routes here
 
     // This is a catch all route in case none of the above matches
