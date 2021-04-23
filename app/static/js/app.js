@@ -22,6 +22,7 @@ app.component('app-header', {
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
             <router-link to="/cars" class="nav-link">Car</router-link>
+          
 
           </li>
         </ul>
@@ -133,23 +134,21 @@ const Register = {
 const Cars = {
     name: 'cars',
     template: `
+    
     <h1>Add New Car</h1>
-    <div :class="errorclass"> 
-        <ul class="uploadmessage" v-for="message in messages">
-            <li >{{message}}</li>
-        </ul>
-    </div>
+    
     <form method="POST" id="carForm" enctype="multipart/form-data" @submit.prevent="RegisterCar">
+    <div class="card">
     <div class="row">
     <div class="col-md-6">
         <label>Make</label>
-        <input name="make" type="text"class="form-control"/>
+        <input name="make" type="text" class="form-control"/>
     </div>
 
 
     <div class="col-md-6">
         <label>Model</label>
-        <input  name="model"type="text" class="form-control"/>
+        <input  name="model" type="text" class="form-control"/>
     </div>
   </div>
 
@@ -163,7 +162,7 @@ const Cars = {
 
     <div class="col-md-6">
         <label>Year</label>
-        <input name="year" type= "text" class="form-control"/>
+        <input name="year" type="text" class="form-control"/>
     </div>
 </div>
 
@@ -172,21 +171,21 @@ const Cars = {
     <div class="col-md-6">
        
         <label>Price</label>
-        <input name="price" type="text"class="form-control"/>
+        <input name="price" type="text" class="form-control"/>
     </div>
 
 
     <div class="col-md-6">
        
         <label>Car Type</label>
-        <input name="car_type" type="text"class="form-control"/>
+        <input name="car_type" type="text" class="form-control"/>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-6">
         <label>Transmission</label>
-        <input name="transmis" type="text"class="form-control"/>
+        <input name="transmis" type="text" class="form-control"/>
     </div>
 </div>   
 
@@ -195,7 +194,7 @@ const Cars = {
     <div class="col-sm-10">
         
         <label>Description</label>
-        <textarea name="desc" type="text"class="form-control"></textarea>
+        <textarea name="desc" type="text" class="form-control"></textarea>
         
 </div> 
 </div>
@@ -212,6 +211,7 @@ const Cars = {
 <div class="col-lg-11">
         <div class="form-group">  
             <button type="save" class="btn btn-success"> Save</button>
+        </div>
         </div>
 </div>
 </form>            

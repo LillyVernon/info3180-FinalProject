@@ -1,6 +1,6 @@
 body {
     padding-top: 5rem;
-    background-color: #bbb0b0;
+    background-color: #ccc;
 }
 
 .registerform {
@@ -41,4 +41,8 @@ label {
 
 #location {
     padding: 0;
+}
+
+.card {
+    width: 80%;
 }
