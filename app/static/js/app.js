@@ -12,7 +12,7 @@ app.component('app-header', {
     name: 'AppHeader',
     template: `
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-      <a class="navbar-brand" href="#">Lab 7</a>
+      <a class="navbar-brand" href="#">United Auto Sales</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -21,10 +21,11 @@ app.component('app-header', {
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
-            <router-link to="/cars" class="nav-link">Car</router-link>
-          
-
           </li>
+          <li class="nav-item active">
+          <router-link to="/cars" class="nav-link">Car</router-link>
+          </li>
+   
         </ul>
       </div>
     </nav>
