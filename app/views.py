@@ -7,17 +7,19 @@ This file creates your application.
 import os
 from app import app
 from app import db, login_manager
-from flask import render_template, request,  redirect, url_for, session, abort, send_from_directory,jsonify, flash
+from flask import render_template, request,  redirect, url_for, session, abort, send_from_directory,jsonify, flash,  g, make_response
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import User_car,User_fav, User
-from .forms import RegisterForm, AddCarForm, LoginForm
+from app.models import User_car,User_fav, Users
+from .forms import RegisterForm, AddCarForm, LoginForm, UploadForm
+import datetime
+from datetime import date
 
 ###
 # Routing for your application.
 ###
-@app.route('/api/register', methods=["POST"])
+@app.route('/api/register',methods=['POST', 'GET'])
 def register():
     form=RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -26,23 +28,41 @@ def register():
         photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         username=request.form['username']
         password=request.form['password']
-        user=User(username,password,request.form['fullname'],request.form['email'], request.form['location'], request.form['biography'],filename)
+        user=Users(username,password,request.form['fullname'],request.form['email'], request.form['location'], request.form['biography'],filename,date.today())
         db.session.add(user)
         db.session.commit()
-        successful={"message":"Registration Complete", "user":request.form['fullname']}
+        successful={"message":"Registration Successful", "user":request.form['fullname']}
+        return jsonify(successful=successful)
+    else:
+        errors={"errors":form_errors(form)}
+        print(errors)
+        return jsonify(errors=errors)
+
+@app.route('/api/upload', methods=["POST"])
+def upload():
+    form=UploadForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        photo=request.files['photo']
+        description=request.form['description']
+        filename=secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        flash('File Saved', 'success')
+        print(description)
+        successful={"message":"File Upload Successful", "filename":filename, "description": description}
         return jsonify(successful=successful)
     else:
         errors={"errors":form_errors(form)}
         return jsonify(errors=errors)
 
+
 @app.route('/api/auth/login')
+
 def login():
-    form=""
-    User=""
+    form=LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = User.query.filter_by(username=username, password=password).first()
+        user = Users.query.filter_by(username=username, password=password).first()
         login_user(user)
         if user is not None and check_password_hash(user.password, password):
             remember_me = False
@@ -80,7 +100,7 @@ def cars():
     form=AddCarForm()
     if request.method == 'GET':
             
-        cars=db.session.query(user_cars).all()
+        cars=db.session.query(user_car).all()
         return render_template("properties.html", items=cars)
     elif request.method == 'POST' and form.validate_on_submit():
 
@@ -96,7 +116,7 @@ def cars():
         transmis = request.form['transmission']
         car_type = request.form['car_type']
         price = request.form['price']
-        car=User_car(desc,make,model,color,year,transmis, car_type, price,filename)
+        car=user_car(desc,make,model,colour,year,transmis, car_type, price,filename)
         #db.session.add(car)
         #db.session.commit()
         

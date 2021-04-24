@@ -5,12 +5,12 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 class RegisterForm(FlaskForm):
 
-    username=StringField('Username', validators=[InputRequired()])
-    fullname=StringField('Fullname', validators=[InputRequired()])
-    email = StringField('Email', [validators.Length(min=6, max=35)])
-    password = PasswordField('Password', [validators.DataRequired()])
-    location=StringField('Location', validators=[InputRequired()])
-    biography= TextAreaField('Biography', validators=[InputRequired()])
+    username=StringField('username', validators=[InputRequired()])
+    fullname=StringField('fullname', validators=[InputRequired()])
+    email = StringField('email', [validators.Length(min=6, max=35)])
+    password = PasswordField('password', [validators.DataRequired()])
+    location=StringField('location', validators=[InputRequired()])
+    biography= TextAreaField('biography', validators=[InputRequired()])
     photo = FileField('Upload Photo', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'Images only!'])])
 
 class AddCarForm(FlaskForm):
@@ -28,6 +28,8 @@ class LoginForm(FlaskForm):
     username=StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
 
-
+class UploadForm(FlaskForm):
+    description = TextAreaField('Description', validators=[InputRequired()])
+    photo = FileField('Choose Photo to be uploaded', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'Images only!'])])
 
 

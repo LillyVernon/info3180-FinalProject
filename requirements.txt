@@ -16,7 +16,7 @@ Flask-Migrate
 Flask-Script
 Flask-Login
 psycopg2
-
+Flask-WTF
 # ----------------------
 # Production Server
 # ----------------------

@@ -11,7 +11,7 @@ const app = Vue.createApp({
 app.component('app-header', {
     name: 'AppHeader',
     template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <a class="navbar-brand" href="#">United Auto Sales</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -69,26 +69,26 @@ const Register = {
         </ul>
     </div>
   
-        <form method="POST" id="registerForm"> 
+        <form  method="POST" id="registerForm"  @submit.prevent="RegisterUser"> 
           <div class="form-group registerform">
             <div class="First"> 
                 <label for="username"> Username</label>
                 <label for="password"> Password</label>
                 <br>
-                <input type="text">
-                <input type="password">
+                <input name="username" type="text">
+                <input name="password" type="password">
          
             </div>
             <div> 
                 <label for="fullname"> Fullname</label>
                 <label for="email"> Email</label>
                 <br>
-                <input type="text">
-                 <input type="email">
+                <input name="fullname" type="text" class="form-control">
+                <input name="email" type="email" class="form-control">
                 
             </div>
             <label for="location" id="location"> Location</label><br>
-            <input type="text">
+            <input name="location" type="text">
             <br>
             <label for="biography"> Biography</label><br>
             <textarea type="text" name="biography" class="form-control"></textarea><br>
@@ -97,7 +97,7 @@ const Register = {
             <input type="file" name="photo" id="photo" class="form-control" accept="image/*" draggable="true">
             <br> 
             <br>
-            </br>
+            <br>
             <button type="submit" class="btn btn-success">Submit</button>
         </div>
             </form>
@@ -272,7 +272,67 @@ const Cars = {
     }
 };
 
+const UploadForm = {
+    name: 'upload-form',
+    template: `
+    <h1>Form</h1>
+    <div :class="errorclass">
+        <ul class="uploadmessage" v-for="message in messages">
+            <li >{{message}}</li>
+        </ul>
+    </div>
+    <form method="POST" id="uploadForm" @submit.prevent="uploadPhoto">
+        <div class="form-group">
+            <label for="description">Description about Image</label>
+            <textarea type="text" name="description" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="photo">Photo Upload</label>
+            <input type="file" name="photo" id="photo" class="form-control" accept="image/*" draggable="true">
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+    `,
+    data() {
+        return {
+            messages: [],
+            className: ''
+        }
+    },
+    methods: {
+        uploadPhoto() {
+            let self = this;
+            let uploadForm = document.getElementById('uploadForm');
+            let form_data = new FormData(uploadForm)
 
+            fetch("/api/upload", {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse['successful']) {
+                        self.messages = [jsonResponse['successful']['message']];
+                        self.className = "successful"
+                    } else {
+                        self.messages = jsonResponse['errors']['errors'];
+                        self.className = "errors"
+                    }
+
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        }
+    }
+};
 
 
 
@@ -286,18 +346,18 @@ const Login = {
 		<div class="login-form lform">
 			<div class="sign-in-htm">
 				<div class="group">
-					<label for="user" class="label">Username</label>
-					<input id="user" type="text" class="input">
+					<label for="username" class="label">Username</label>
+					<input name="username" id="user" type="text" class="input">
 				</div>
 				<div class="group">
-					<label for="pass" class="label">Password</label>
-					<input id="pass" type="password" class="input" data-type="password">
+					<label for="password" class="label">Password</label>
+					<input name="password" id="pass" type="password" class="input" data-type="password">
 				</div>
 				<div class="group">
 					<input id="check" type="checkbox" class="check" checked>
 					<label for="check"><span class="icon"></span> Keep me Signed in</label>
 				</div>
-                <br></br>
+                <br> <br>
 				<div class="group">
 					<input type="submit" class ="btn btn-success" value="Sign In">
 				</div>
@@ -338,6 +398,7 @@ const routes = [
     { path: "/register", component: Register },
     { path: "/login", component: Login },
     { path: "/cars", component: Cars },
+    { path: "/upload", component: UploadForm },
     // Put other routes here
 
     // This is a catch all route in case none of the above matches
