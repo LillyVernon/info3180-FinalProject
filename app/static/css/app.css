@@ -6,8 +6,16 @@ body {
 .registerform {
     border-radius: 10px;
     background-color: white;
-    padding: 10px;
-    max-width: 750px;
+    padding: 30px;
+    width: 80%;
+    border: thin black;
+}
+
+.lform{
+    border-radius: 10px;
+    background-color: white;
+    padding: 30px;
+    width: 50%;
     border: thin black;
 }
 
@@ -45,4 +53,8 @@ label {
 
 .card {
     width: 80%;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: white;
+    border: thin black;
 }

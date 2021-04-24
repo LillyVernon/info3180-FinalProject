@@ -19,14 +19,25 @@ app.component('app-header', {
     
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+        <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
-          </li>
-          <li class="nav-item active">
-          <router-link to="/cars" class="nav-link">Car</router-link>
-          </li>
-   
+        </li>
+        <li class="nav-item active">
+            <router-link to="/cars" class="nav-link">Add Car</router-link>
+        </li>
         </ul>
+
+        <ul class="navbar-nav">
+
+        <li class="nav-item active">
+        <router-link to="/register" class="nav-link">Register</router-link>
+        </li>
+        <li class="nav-item active">
+        <router-link to="/login" class="nav-link">Login</router-link>
+        </li>
+
+        </ul>
+
       </div>
     </nav>
     `
@@ -85,6 +96,8 @@ const Register = {
             <br> 
             <input type="file" name="photo" id="photo" class="form-control" accept="image/*" draggable="true">
             <br> 
+            <br>
+            </br>
             <button type="submit" class="btn btn-success">Submit</button>
         </div>
             </form>
@@ -211,7 +224,7 @@ const Cars = {
 
 <div class="col-lg-11">
         <div class="form-group">  
-            <button type="save" class="btn btn-success"> Save</button>
+            <button type="submit" class="btn btn-success"> Save</button>
         </div>
         </div>
 </div>
@@ -268,9 +281,9 @@ const Login = {
     template: `
     <div class="login-wrap">
 	<div class="login-html">
-		<h3> Login</3>
+		<h1> Login</h1>
 		
-		<div class="login-form">
+		<div class="login-form lform">
 			<div class="sign-in-htm">
 				<div class="group">
 					<label for="user" class="label">Username</label>
@@ -284,8 +297,9 @@ const Login = {
 					<input id="check" type="checkbox" class="check" checked>
 					<label for="check"><span class="icon"></span> Keep me Signed in</label>
 				</div>
+                <br></br>
 				<div class="group">
-					<input type="submit" class="button" value="Sign In">
+					<input type="submit" class ="btn btn-success" value="Sign In">
 				</div>
 				<div class="hr"></div>
 			
