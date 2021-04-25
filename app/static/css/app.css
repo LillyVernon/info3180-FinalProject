@@ -100,3 +100,58 @@ label {
 .homebuttonlinks {
     color: white;
 }
+
+.user-image {
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+}
+
+.profilecard1 {
+    padding: 40px;
+    background-color: white;
+}
+
+.car-fav {
+    padding: 0;
+    margin: 0;
+}
+
+.card-car {
+    background-color: white;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+    width: 330px;
+    height: auto;
+    background-color: white;
+    border-radius: 10px 10px;
+    overflow: hidden;
+    box-shadow: 5px 10px 10px #888888;
+}
+
+.cars-group {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 35px;
+    justify-content: center;
+    align-items: center;
+}
+
+.single {
+    object-fit: cover;
+    width: 330px;
+    height: 200px;
+}
+
+.car-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.price-tag {
+    background-color: rgb(0, 189, 0);
+    color: white;
+    border-radius: 10px;
+}

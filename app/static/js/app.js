@@ -19,14 +19,13 @@ app.component('app-header', {
     
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-            <router-link  to="/home" class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
-        </li>
+
         <li class="nav-item active">
             <router-link to="/cars" class="nav-link">Add Car</router-link>
         </li>
+
         <li class="nav-item active">
-            <router-link to="/profile" class="nav-link">My Profile</router-link>
+            <router-link :to="{name: 'users', params: { user_id : user_id}}" class="nav-link">My Profile</router-link>
         </li>
 
         </ul>
@@ -195,9 +194,30 @@ const Cars = {
 
     <div class="col-md-6">
        
-        <label>Car Type</label>
-        <input name="car_type" type="text" class="form-control"/>
+    <div class="form-group">
+    <label for="car_type">Car Type</label>
+    <select class="form-control" id="car_type">
+    <option>SUV</option>
+    <option>Lexus</option>
+    <option>Lamborghini</option>
+
+    </select>
     </div>
+   
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+<div class="form-group">
+    <label for="transmis">Transmission</label>
+    <select class="form-control" id="transmis">
+    <option>Automatic</option>
+    <option>Manual</option>
+    </select>
+    </div>
+</div>
+</div>
 </div>
 
 <div class="row">
@@ -394,30 +414,32 @@ const Login = {
             let form_data = new FormData(loginForm)
 
             fetch("/api/auth/login", {
-                    method: 'POST',
-                    body: form_data,
-                    headers: {
-                        'X-CSRFToken': token
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(jsonResponse) {
-                    if (jsonResponse['successful']) {
-                        self.messages = [jsonResponse['successful']['message']];
-                        self.className = "successful"
-                        router.push('/register')
-                    } else {
-                        self.messages = jsonResponse['errors']['errors'];
-                        self.className = "errors"
-                    }
+                method: 'POST',
+                body: form_data,
+                headers: {
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
+            })
 
+            .then(resp => resp.json())
+                .then(function(jsonResp) {
+
+                    self.successful = jsonResp.successful;
+                    self.error = jsonResp.error;
+
+                    if (self.successful) {
+                        let jwt_token = jsonResp.token
+                        localStorage.setItem('token', jwt_token);
+                        router.push({ path: '/register' })
+                    } else {
+                        console.log(self.error);
+                    }
                 })
-                .catch(function(error) {
-                    console.log(error);
-                });
+
+            .catch(function(error) {
+                console.log(error);
+            });
 
         }
     }
@@ -435,7 +457,7 @@ const Home = {
             <h2> CARS ONLINE </h2>
             <p> United Auto sales provides the fastest, easiest
                     and most friendly way to buy or sell cars online. Find a Great price on the vehicle you want
-             <p>
+             </p>
 
             <span>  
             
@@ -457,19 +479,129 @@ const UserProfile = {
     name: 'userprofile',
     template: `
 
-    <div class="profilecard1">
-        <img>
-        <h1> Full Name </h1>
-        <p> username</p>
-        <p>bio</p>
+    
+    <div class="profilecard1 container">
+        <div class="row">
+            <div class = "person-img col-3"  v-if="user !==null">
+                <img src="./static/girl.jpg" class="user-image">
+                <img v-bind:src="'/static/uploads/' + user.photo" /> 
+            </div>
 
-        <p>email</p>
-        <p>location</p>
-        <p>joined</p>
+            <div class="profilecard-body col-6"  v-if="user !==null">
+            {{user.name}}
+            {{user.username}}
+            {{user.biography}}
+            {{user.email}}
+            {{user.location}}
+            {{user.date_joined}}
+            </div>
+        </div>
+    </div>
+    <div class="car-fav">
+        <h4> Cars Favorited </h4>
+    </div>
 
-  </div>
-    `
-};
+    <div class="cars-group ">
+        <div class="card-car ">
+            <img class="single img-top" src="./static/car1.jpg"/>
+            <div class = "card-body">
+                <div class = "car-title">
+                    <h6 id="title1">2020 Lamborghini</h6>
+                    <span id="price1" class="price-tag"> $356335 </span>
+                </div>
+                <p class="car-text">Huracan</p>
+                <button type="button" class="btn-block btn btn-primary">View More Details</button>
+            </div>
+        </div>
+        
+    
+
+        <div class="card-car">
+            <img class="single img-top" src="./static/car2.jpg" />
+            <div class = "card-body">
+                <div class = "car-title">
+                    <h6 id="title1">2020 Lamborghini</h6>
+                    <span id="price1" class="price-tag"> $356335 </span>
+                </div>
+                <p class="car-text">Huracan</p>
+                <button type="button" class="btn-block btn btn-primary">View More Details</button>
+            </div>
+        </div>
+        
+        <div class="card-car">
+            <img class="single img-top" src="./static/car3.jpg"/>
+            <div class = "card-body">
+                <div class = "car-title">
+                    <h6 id="title1">2020 Lamborghini</h6>
+                    <span id="price1" class="price-tag"> $356335 </span>
+                </div>
+                <p class="car-text">Huracan</p>
+                <button type="button" class="btn-block btn btn-primary">View More Details</button>
+            </div>
+        </div> 
+    </div>
+    `,
+    data() {
+        return {
+            message: "",
+            cars: [],
+            user: null,
+            errors: [],
+            status: ''
+        }
+    },
+    created() {
+        let self = this;
+        let user_id = this.$route.params.user_id
+        console.log(user_id)
+        fetch("/api/users/" + user_id, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+
+            },
+            credentials: 'same-origin'
+        }).then(function(response) {
+            return response.json();
+        }).then(function(jsonResponse) {
+            self.user = jsonResponse;
+            console.log(jsonResponse);
+        }).catch(function(error) {
+            console.log(error);
+        });
+    },
+    mounted() {
+        let self = this;
+        let user_id = this.$route.params.user_id
+        fetch("/api/users/" + user_id + "/favourites", {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+
+            },
+            credentials: 'same-origin'
+        }).then(function(response) {
+            return response.json();
+        }).then(function(jsonResponse) {
+            self.cars = jsonResponse;
+            console.log(jsonResponse);
+        }).catch(function(error) {
+            console.log(error);
+        });
+
+    }
+}
+
+function jwtDecode(t) {
+    let token = {};
+    token.raw = t;
+    token.header = JSON.parse(window.atob(t.split('.')[0]));
+    token.payload = JSON.parse(window.atob(t.split('.')[1]));
+    return (token)
+}
+
+
+
 
 const NotFound = {
     name: 'NotFound',
@@ -490,10 +622,8 @@ const routes = [
     { path: "/auth/login", component: Login },
     { path: "/cars", component: Cars },
     { path: "/upload", component: UploadForm },
-    {
-        path: "/users/{user_id}",
-        component: UserProfile
-    },
+    { path: "/users/:user_id", name: 'users', component: UserProfile },
+
     // Put other routes here
 
     // This is a catch all route in case none of the above matches

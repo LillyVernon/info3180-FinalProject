@@ -6,6 +6,7 @@ This file creates your application.
 """
 import os
 from app import app
+import jwt
 from app import db, login_manager
 from flask import render_template, request,  redirect, url_for, session, abort, send_from_directory,jsonify, flash,  g, make_response
 from flask_login import login_user, logout_user, current_user, login_required
@@ -13,8 +14,40 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User_car,User_fav, Users
 from .forms import RegisterForm, AddCarForm, LoginForm, UploadForm
-import datetime
 from datetime import date
+from flask import _request_ctx_stack
+from functools import wraps
+
+def requires_token(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    auth = request.headers.get('Authorization', None) # or request.cookies.get('token', None)
+
+    if not auth:
+      return jsonify({'code': 'authorization_header_missing', 'description': 'Authorization header is expected'}), 401
+
+    parts = auth.split()
+
+    if parts[0].lower() != 'bearer':
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}), 401
+    elif len(parts) == 1:
+      return jsonify({'code': 'invalid_header', 'description': 'Token not found'}), 401
+    elif len(parts) > 2:
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}), 401
+
+    token = parts[1]
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
+    except jwt.DecodeError:
+        return jsonify({'code': 'token_invalid_signature', 'description': 'Token signature is invalid'}), 401
+
+    g.current_user = user = payload
+    return f(*args, **kwargs)
+
+  return decorated
 
 ###
 # Routing for your application.
@@ -63,31 +96,27 @@ def login():
         username = form.username.data
         password = form.password.data
         user = Users.query.filter_by(username=username).first()
-        print(user)
         login_user(user)
-        print(login_user)
+        token = jwt.encode({'id':user.user_id, 'user': user.username}, app.config['SECRET_KEY'], algorithm = 'HS256')
+        print(token)
         if user is not None and check_password_hash(user.password, password):
             remember_me = False
 
             if 'remember_me' in request.form:
                 remember_me = True
-
-            # If the user is not blank, meaning if a user was actually found,
-            # then login the user and create the user session.
-            # user should be an instance of your `User` class
             login_user(user, remember=remember_me)
 
             flash('Logged in successfully.', 'success')
-
-            next_page = request.args.get('next')
-            #return redirect(next_page or url_for('home'))
-            successful={"message":"Login Successful", "username":username}
-            return jsonify(successful=successful)
+            successful={"message":"Login Successful", "token":token}
+            return jsonify(successful=successful),200
         else:
-            flash('Username or Password is incorrect.', 'danger')
+            error='Username or Password is incorrect.'
+            return jsonify(error=error),400
 
-    flash_errors(form)
-    return redirect(url_for('login'))
+    errors= form_errors(form)
+    return jsonify(errors=errors) 
+
+
 
 @app.route("/api/auth/logout")
 @login_required
@@ -102,11 +131,7 @@ def logout():
 def cars():
 
     form=AddCarForm()
-    if request.method == 'GET':
-            
-        cars=db.session.query(user_car).all()
-        return render_template("properties.html", items=cars)
-    elif request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
 
         photo=form.photo.data
         filename=secure_filename(photo.filename)
@@ -120,11 +145,18 @@ def cars():
         transmis = request.form['transmission']
         car_type = request.form['car_type']
         price = request.form['price']
-        car=user_car(desc,make,model,colour,year,transmis, car_type, price,filename)
+        car=User_car(desc,make,model,colour,year,transmis, car_type, price,filename)
         #db.session.add(car)
         #db.session.commit()
         
         return 
+
+@app.route('/api/users/<user_id>', methods=['GET'])
+@requires_token
+def userDetails(user_id):
+    user=Users.query.get(user_id)
+    reqs={'id':user.user_id, 'username':user.username, 'name':user.name, 'email':user.email, 'location':user.location, 'biography': user.biography, 'photo':user.photo, 'date_joined': user.datejoined }
+    return jsonify(reqs)
 
 def flash_errors(form):
     for field, errors in form.errors.items():
