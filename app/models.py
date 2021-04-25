@@ -39,9 +39,10 @@ class Users(db.Model):
 
     def get_id(self):
         try:
-            return unicode(self.id)  # python 2 support
+            return unicode(self.user_id )  # python 2 support
         except NameError:
-            return str(self.id)  # python 3 support
+            pass
+            #return str(self.user_id )  # python 3 support
 
     def __repr__(self):
         return '<Users %r>' % (self.username)

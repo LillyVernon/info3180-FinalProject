@@ -19,7 +19,7 @@ from datetime import date
 ###
 # Routing for your application.
 ###
-@app.route('/api/register',methods=['POST', 'GET'])
+@app.route('/api/register', methods=['POST'])
 def register():
     form=RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -55,15 +55,17 @@ def upload():
         return jsonify(errors=errors)
 
 
-@app.route('/api/auth/login')
+@app.route('/api/auth/login',  methods=['POST'])
 
 def login():
     form=LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = Users.query.filter_by(username=username, password=password).first()
+        user = Users.query.filter_by(username=username).first()
+        print(user)
         login_user(user)
+        print(login_user)
         if user is not None and check_password_hash(user.password, password):
             remember_me = False
 
@@ -78,12 +80,14 @@ def login():
             flash('Logged in successfully.', 'success')
 
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('home'))
+            #return redirect(next_page or url_for('home'))
+            successful={"message":"Login Successful", "username":username}
+            return jsonify(successful=successful)
         else:
             flash('Username or Password is incorrect.', 'danger')
 
     flash_errors(form)
-    return render_template('login.html', form=form)
+    return redirect(url_for('login'))
 
 @app.route("/api/auth/logout")
 @login_required
@@ -132,7 +136,7 @@ def flash_errors(form):
             
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return Users.get_id(user_id)
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
 # application.

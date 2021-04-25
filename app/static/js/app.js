@@ -20,11 +20,15 @@ app.component('app-header', {
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-            <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
+            <router-link  to="/home" class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
         </li>
         <li class="nav-item active">
             <router-link to="/cars" class="nav-link">Add Car</router-link>
         </li>
+        <li class="nav-item active">
+            <router-link to="/profile" class="nav-link">My Profile</router-link>
+        </li>
+
         </ul>
 
         <ul class="navbar-nav">
@@ -33,7 +37,7 @@ app.component('app-header', {
         <router-link to="/register" class="nav-link">Register</router-link>
         </li>
         <li class="nav-item active">
-        <router-link to="/login" class="nav-link">Login</router-link>
+        <router-link to="/auth/login" class="nav-link">Login</router-link>
         </li>
 
         </ul>
@@ -342,30 +346,37 @@ const Login = {
     <div class="login-wrap">
 	<div class="login-html">
 		<h1> Login</h1>
-		
-		<div class="login-form lform">
-			<div class="sign-in-htm">
-				<div class="group">
-					<label for="username" class="label">Username</label>
-					<input name="username" id="user" type="text" class="input">
-				</div>
-				<div class="group">
-					<label for="password" class="label">Password</label>
-					<input name="password" id="pass" type="password" class="input" data-type="password">
-				</div>
-				<div class="group">
-					<input id="check" type="checkbox" class="check" checked>
-					<label for="check"><span class="icon"></span> Keep me Signed in</label>
-				</div>
-                <br> <br>
-				<div class="group">
-					<input type="submit" class ="btn btn-success" value="Sign In">
-				</div>
-				<div class="hr"></div>
-			
-			</div>
-	
-		</div>
+        <div :class="errorclass"> 
+        <ul class="uploadmessage" v-for="message in messages">
+            <li >{{message}}</li>
+        </ul>
+    </div>
+		<form  method="POST" id="loginForm"  @submit.prevent="LoginUser"> 
+            <div class="login-form lform">
+                <div class="sign-in-htm">
+                    <div class="group">
+                        <label for="username" class="label">Username</label>
+                        <input name="username" id="user" type="text" class="input">
+                    </div>
+                    <div class="group">
+                        <label for="password" class="label">Password</label>
+                        <input name="password" id="pass" type="password" class="input" data-type="password">
+                    </div>
+                    <div class="group">
+                        <input id="check" type="checkbox" class="check" checked>
+                        <label for="check"><span class="icon"></span> Keep me Signed in</label>
+                    </div>
+                    <br> <br>
+                    <div class="group">
+                       
+                        <button type="submit" class="btn btn-success">Sign In</button>
+                    </div>
+                    <div class="hr"></div>
+                
+                </div>
+        
+            </div>
+        </form>
 	</div>
 </div>
  
@@ -376,9 +387,89 @@ const Login = {
             className: ''
         }
     },
+    methods: {
+        LoginUser() {
+            let self = this;
+            let LoginForm = document.getElementById('loginForm');
+            let form_data = new FormData(loginForm)
+
+            fetch("/api/auth/login", {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse['successful']) {
+                        self.messages = [jsonResponse['successful']['message']];
+                        self.className = "successful"
+                        router.push('/register')
+                    } else {
+                        self.messages = jsonResponse['errors']['errors'];
+                        self.className = "errors"
+                    }
+
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        }
+    }
 
 };
 
+
+const Home = {
+    name: 'home',
+    template: `
+
+    <div class="row">
+        <div class="column1" style="background-color:#aaa;">
+            <h2> BUY AND SELL </h2> 
+            <h2> CARS ONLINE </h2>
+            <p> United Auto sales provides the fastest, easiest
+                    and most friendly way to buy or sell cars online. Find a Great price on the vehicle you want
+             <p>
+
+            <span>  
+            
+                <button type="button" class="btn btn-primary homeregister"> <router-link to="/register" class="homebuttonlinks" >Register</router-link > </button>
+                <button type="button" class="btn btn-success homelogin"> <router-link to="/auth/login" class="homebuttonlinks">Login</router-link> </button>
+                
+            </span>
+        </div>
+
+
+        <div class="column2" style="background-color:#bbb;">
+        <img src="./static/homecar.jpg" class="homeimage">
+        </div>
+  </div>
+    `
+};
+
+const UserProfile = {
+    name: 'userprofile',
+    template: `
+
+    <div class="profilecard1">
+        <img>
+        <h1> Full Name </h1>
+        <p> username</p>
+        <p>bio</p>
+
+        <p>email</p>
+        <p>location</p>
+        <p>joined</p>
+
+  </div>
+    `
+};
 
 const NotFound = {
     name: 'NotFound',
@@ -394,11 +485,15 @@ const NotFound = {
 
 // Define Routes
 const routes = [
-    // { path: "/", component: Home },
+    { path: "/", component: Home },
     { path: "/register", component: Register },
-    { path: "/login", component: Login },
+    { path: "/auth/login", component: Login },
     { path: "/cars", component: Cars },
     { path: "/upload", component: UploadForm },
+    {
+        path: "/users/{user_id}",
+        component: UserProfile
+    },
     // Put other routes here
 
     // This is a catch all route in case none of the above matches
