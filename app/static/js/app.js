@@ -10,6 +10,26 @@ const app = Vue.createApp({
 
 app.component('app-header', {
     name: 'AppHeader',
+    data (){
+         
+        return {islogin: false,
+               user_id:null,
+
+         }
+    },
+    mounted() {
+           if (localStorage.getItem("token") ===null)
+           {
+              this.islogin=false;
+  
+           }else{
+              this.islogin=true;
+              var decoded = jwtDecode(localStorage.getItem("token"));
+              this.user_id=decoded.payload.user_id;
+              console.log(this.user_id);
+           }
+    }, 
+    
     template: `
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <a class="navbar-brand" href="#">United Auto Sales</a>
@@ -24,8 +44,12 @@ app.component('app-header', {
             <router-link to="/cars" class="nav-link">Add Car</router-link>
         </li>
 
-        <li class="nav-item active">
+        <li v-if="user_id !==null"  class="nav-item active">
             <router-link :to="{name: 'users', params: { user_id : user_id}}" class="nav-link">My Profile</router-link>
+        </li>
+
+        <li class="nav-item active" v-if="islogin">
+            <router-link class="nav-link" to="/logout"> Logout <span class="sr-only">(current)</span></router-link>
         </li>
 
         </ul>
@@ -155,103 +179,96 @@ const Cars = {
     <h1>Add New Car</h1>
     
     <form method="POST" id="carForm" enctype="multipart/form-data" @submit.prevent="RegisterCar">
-    <div class="card">
+        <div class="card">
+            <div class="row">
+            <div class="col-md-6">
+                <label>Make</label>
+                <input name="make" type="text" class="form-control"/>
+            </div>
+
+            <div class="col-md-6">
+                <label>Model</label>
+                <input  name="model" type="text" class="form-control"/>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Colour</label>
+                <input name="colour" type="text" class="form-control"/>
+        </div>
+
+
+            <div class="col-md-6">
+                <label>Year</label>
+                <input name="year" type="text" class="form-control"/>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-6">
+            
+                <label>Price</label>
+                <input name="price" type="text" class="form-control"/>
+            </div>
+
+
+                <div class="col-md-6">
+            
+            <div class="form-group">
+            <label for="car_type">Car Type</label>
+            <select class="form-control" id="car_type">
+            <option>SUV</option>
+            <option>Lexus</option>
+            <option>Lamborghini</option>
+
+            </select>
+            </div>
+        
+        </div>
+        </div>
+
+        <div class="row">
+        <div class="col-md-6">
+        <div class="form-group">
+            <label for="transmis">Transmission</label>
+            <select class="form-control" id="transmis">
+            <option>Automatic</option>
+            <option>Manual</option>
+            </select>
+            </div>
+        </div>
+        </div>
+        <div class="row">
+        <div class="col-sm-10">
+            
+            <label>Description</label>
+            <textarea name="desc" type="text" class="form-control"></textarea>
+            
+    </div> 
+    </div>
+
     <div class="row">
-    <div class="col-md-6">
-        <label>Make</label>
-        <input name="make" type="text" class="form-control"/>
+        <div class="col-md-6">
+            
+                <label> Upload Photo</label>
+                <input name="photo" type="file" accept="image/*" class="form-control-file"/>
+            </div>
+        </div>
+        <br>
+
+    <div class="col-lg-11">
+            <div class="form-group">  
+                <button type="submit" class="btn btn-success"> Save</button>
+            </div>
+            </div>
     </div>
+        </div>
 
 
-    <div class="col-md-6">
-        <label>Model</label>
-        <input  name="model" type="text" class="form-control"/>
-    </div>
-  </div>
-
-
-<div class="row">
-    <div class="col-md-6">
-        <label>Colour</label>
-        <input name="colour" type="text" class="form-control"/>
-    </div>
-
-
-    <div class="col-md-6">
-        <label>Year</label>
-        <input name="year" type="text" class="form-control"/>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-md-6">
-       
-        <label>Price</label>
-        <input name="price" type="text" class="form-control"/>
-    </div>
-
-
-    <div class="col-md-6">
-       
-    <div class="form-group">
-    <label for="car_type">Car Type</label>
-    <select class="form-control" id="car_type">
-    <option>SUV</option>
-    <option>Lexus</option>
-    <option>Lamborghini</option>
-
-    </select>
-    </div>
    
-</div>
-</div>
-
-<div class="row">
-<div class="col-md-6">
-<div class="form-group">
-    <label for="transmis">Transmission</label>
-    <select class="form-control" id="transmis">
-    <option>Automatic</option>
-    <option>Manual</option>
-    </select>
-    </div>
-</div>
-</div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <label>Transmission</label>
-        <input name="transmis" type="text" class="form-control"/>
-    </div>
-</div>   
-
-
-<div class="row">
-    <div class="col-sm-10">
-        
-        <label>Description</label>
-        <textarea name="desc" type="text" class="form-control"></textarea>
-        
-</div> 
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        
-            <label> Upload Photo</label>
-            <input name="photo" type="file" accept="image/*" class="form-control-file"/>
-        </div>
-    </div>
-    <br>
-
-<div class="col-lg-11">
-        <div class="form-group">  
-            <button type="submit" class="btn btn-success"> Save</button>
-        </div>
-        </div>
-</div>
 </form>            
                    
     `,
@@ -271,7 +288,8 @@ const Cars = {
                     method: 'POST',
                     body: form_data,
                     headers: {
-                        'X-CSRFToken': token
+                        Authorization: "Bearer " + localStorage.getItem("token"),
+                        'X-CSRFToken': token,
                     },
                     credentials: 'same-origin'
                 })
@@ -431,7 +449,7 @@ const Login = {
                     if (self.successful) {
                         let jwt_token = jsonResp.token
                         localStorage.setItem('token', jwt_token);
-                        router.push({ path: '/register' })
+                        router.push({ path: '/explore' })
                     } else {
                         console.log(self.error);
                     }
@@ -600,7 +618,105 @@ function jwtDecode(t) {
     return (token)
 }
 
+const Explore = {
+    name: 'Explore',
+    template: `
+    <div>
+        <div class = "search">
+            <form v-on:submit.prevent ="Search" method ="POST" id ="search">
+                <div class="form-group">
+                    <label class="searchLabel" for="make">Make</label>
+                    <input type="text"  id="make" name="make" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="searchLabel" for="model">Model</label>
+                    <input type="text"  id="model" name="model" class="form-control">
+                </div>
+                <button  type="submit" name="submit" id="up" class="btn btn-sucess">Search</button>
+            </form>
+        </div>
+        <div class="exBody">
+            <div class="carsBody">
+                <ul class="carslist" v-if="cars !==[]">
+                    <li v-for="car in cars" class="car"> 
+                        <div class="card ">
+                        <div class="card-body">
+                            <span class ="card-title">{{ car.year }} {{car.make}}}</span>
+                            <img v-bind:src="'./uploads/' + car.filename" /> 
+                            {{car.price}}
+                            {{car.model}}
+                            {{car.id}}
+                        </div>
+                        <router-link :to="{name: 'cars', params: { car_id : car.id}}" > View more details
+                        </router-link>
+                        <div class="btn btn-primary" id="viewCar">
+                        </div>
+                        </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `,
+    data() {
+        return {
+            cars: [],
+            errors: [],
+            status: ''
+        }
+    },
+    created() {
+        let self = this;
+        fetch("/api/cars", {
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
 
+            },
+            credentials: 'same-origin'
+        }).then(function(response) {
+            return response.json();
+        }).then(function(jsonResponse) {
+            self.cars = jsonResponse;
+            console.log(jsonResponse);
+        }).catch(function(error) {
+            console.log(error);
+        });
+    },
+
+    methods: {
+        Search: function() {
+            let self = this;
+            let searchform = document.getElementById('search');
+            let form_data = new FormData(searchform);
+
+            fetch("/api/search", {
+                method: 'GET',
+                body: form_data,
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                    'X-CSRFToken': token,
+
+                },
+            }).then(function(response) {
+                return response.json();
+
+            }).then(function(jsonResponse) {
+                if (jsonResponse.hasOwnProperty('errors')) {
+                    self.errors = errors
+                } else {
+                    self.cars = jsonResponse;
+                }
+                console.log(jsonResponse);
+
+            }).catch(function(error) {
+                self.errors = error;
+            });
+        },
+
+    }
+
+}
 
 
 const NotFound = {
@@ -623,6 +739,7 @@ const routes = [
     { path: "/cars", component: Cars },
     { path: "/upload", component: UploadForm },
     { path: "/users/:user_id", name: 'users', component: UserProfile },
+    { path: "/explore", name: 'Explore', component: Explore },
 
     // Put other routes here
 

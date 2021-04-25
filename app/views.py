@@ -13,7 +13,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User_car,User_fav, Users
-from .forms import RegisterForm, AddCarForm, LoginForm, UploadForm
+from .forms import RegisterForm, AddCarForm, LoginForm, Search
 from datetime import date
 from flask import _request_ctx_stack
 from functools import wraps
@@ -71,21 +71,6 @@ def register():
         print(errors)
         return jsonify(errors=errors)
 
-@app.route('/api/upload', methods=["POST"])
-def upload():
-    form=UploadForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        photo=request.files['photo']
-        description=request.form['description']
-        filename=secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        flash('File Saved', 'success')
-        print(description)
-        successful={"message":"File Upload Successful", "filename":filename, "description": description}
-        return jsonify(successful=successful)
-    else:
-        errors={"errors":form_errors(form)}
-        return jsonify(errors=errors)
 
 
 @app.route('/api/auth/login',  methods=['POST'])
@@ -126,37 +111,78 @@ def logout():
     flash('You have been logged out.', 'danger')
     return redirect(url_for('login'))
 
-@app.route("/api/cars", methods=["POST", ])
+@app.route("/api/cars", methods=["POST","GET"])
 @login_required
 def cars():
 
     form=AddCarForm()
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' :
+        if form.validate_on_submit():
+            photo=form.photo.data
+            filename=secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            desc = request.form['description']
+            make = request.form['make']
+            model = request.form['model']
+            colour = request.form['colour']
+            year = request.form['year']
+            transmis =form.transmission.data
+            car_type = form.car_type.data
+            price = request.form['price']
+            car=User_car(desc,make,model,colour,year,transmis, car_type, price,user_id,filename)
+            db.session.add(car)
+            db.session.commit()
+            successful={"message":"Registration Successful"}
+            return jsonify(successful=successful),200
+        else:
+            errors={"errors":form_errors(form)}
+            return jsonify(errors=errors),400
 
-        photo=form.photo.data
-        filename=secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        desc = request.form['description']
-        make = request.form['make']
-        model = request.form['model']
 
-        colour = request.form['colour']
-        year = request.form['year']
-        transmis = request.form['transmission']
-        car_type = request.form['car_type']
-        price = request.form['price']
-        car=User_car(desc,make,model,colour,year,transmis, car_type, price,filename)
-        #db.session.add(car)
-        #db.session.commit()
-        
-        return 
-
-@app.route('/api/users/<user_id>', methods=['GET'])
+@app.route('/api/users/<int:user_id>', methods=['GET'])
 @requires_token
 def userDetails(user_id):
     user=Users.query.get(user_id)
     reqs={'id':user.user_id, 'username':user.username, 'name':user.name, 'email':user.email, 'location':user.location, 'biography': user.biography, 'photo':user.photo, 'date_joined': user.datejoined }
     return jsonify(reqs)
+
+
+@app.route('/api/search', methods =["GET"])
+@requires_token
+def search():
+    form = Search()
+    if request.method=="GET" and form.validate_on_submit():
+        model=request.form["model"]
+        make =request.form["make"]
+        if model == '' and make == '':
+            cars=db.session.query(User_car).all()
+        elif model == '':
+            cars=db.session.query(User_car).filter_by(make=make).all()
+        elif make == '':
+            cars=db.session.query(User_car).filter_by(model=model).all()
+        else:
+            cars=db.session.query(User_car).order_by(car_id).limit(3).all()[::-1]
+        lst =[]
+        for car in cars:
+            car ={
+                "id": car.car_id,
+                    "description": car.desc,
+                    "year": car.year,
+                    "make": car.make,
+                    "model": car.model,
+                    "colour": car.colour,
+                    "transmission": car.transmis,
+                    "cartype": car.car_type,
+                    "price": car.price,
+                    "photo": car.photo,
+                    "user_id": car.user_id
+                    }
+            lst.append(car)
+        return jsonify(lst)
+    else:
+        response = {"errors": form_errors(form)}
+        return  jsonify(response)
+
 
 def flash_errors(form):
     for field, errors in form.errors.items():

@@ -64,7 +64,7 @@ class User_car(db.Model):
     user_id = db.Column(db.Integer)
     photo=db.Column(db.String(225))   
 
-    def __init__(self, desc, make, model, colour, year, transmis, car_type, price,  photo):
+    def __init__(self, desc, make, model, colour, year, transmis, car_type, price,  photo, user_id ):
         self.desc = desc
         self.make = make
         self.model = model
@@ -74,6 +74,7 @@ class User_car(db.Model):
         self.car_type = car_type
         self.price=price
         self.photo=photo
+        self.user_id=user_id
 
  
     

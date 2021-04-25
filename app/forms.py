@@ -27,9 +27,9 @@ class AddCarForm(FlaskForm):
 class LoginForm(FlaskForm):
     username=StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
-
-class UploadForm(FlaskForm):
-    description = TextAreaField('Description', validators=[InputRequired()])
-    photo = FileField('Choose Photo to be uploaded', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'Images only!'])])
+    
+class Search(FlaskForm):
+    make=make= StringField()
+    model= StringField()
 
 
