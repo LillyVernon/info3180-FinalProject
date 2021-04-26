@@ -4,7 +4,7 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-import os
+import os,base64,datetime
 from app import app
 import jwt
 from app import db, login_manager
@@ -17,6 +17,7 @@ from .forms import RegisterForm, AddCarForm, LoginForm, Search
 from datetime import date
 from flask import _request_ctx_stack
 from functools import wraps
+from app.config import *
 
 def requires_token(f):
   @wraps(f)
@@ -49,6 +50,15 @@ def requires_token(f):
 
   return decorated
 
+
+@app.route('/api/secure', methods=['GET'])
+@requires_token
+def api_secure():
+    # This data was retrieved from the payload of the JSON Web Token
+    # take a look at the requires_auth decorator code to see how we decoded
+    # the information from the JWT.
+    user = g.current_user
+    return jsonify(data={"user": user}, message="Success")
 ###
 # Routing for your application.
 ###
@@ -73,7 +83,7 @@ def register():
 
 
 
-@app.route('/api/auth/login',  methods=['POST'])
+""" @app.route('/api/auth/login',  methods=['POST'])
 
 def login():
     form=LoginForm()
@@ -82,7 +92,7 @@ def login():
         password = form.password.data
         user = Users.query.filter_by(username=username).first()
         login_user(user)
-        token = jwt.encode({'id':user.user_id, 'user': user.username}, app.config['SECRET_KEY'], algorithm = 'HS256')
+        token = jwt.encode({'id':user.user_id, 'user': user.username}, app.config['SECRET_KEY'], algorithm = 'HS256').decode('utf-8')
         print(token)
         if user is not None and check_password_hash(user.password, password):
             remember_me = False
@@ -99,22 +109,43 @@ def login():
             return jsonify(error=error),400
 
     errors= form_errors(form)
-    return jsonify(errors=errors) 
+    return jsonify(errors=errors)  """
 
 
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    form = LoginForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            username = request.form['username']
+            password = request.form['password']
+            user = Users.query.filter_by(username=username).first()
+            if user is not None and check_password_hash(user.password, password):
+                payload = { 'username': user.username,'user_id': user.user_id}
+                token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+                session['user_id'] = user.user_id
+                jsonmsg=jsonify(message=" Login Successful and Token was Generated",data={"token":token})         
+                return jsonmsg 
+            else: 
+                return jsonify(message="Login Failed") 
+        else:
+            err=form_errors(form)
+            jsonErr=jsonify(errors=err)
+            return jsonErr
 
-@app.route("/api/auth/logout")
-@login_required
+@app.route("/api/auth/logout", methods=["GET"])
+@requires_token
 def logout():
     # Logout the user and end the session
     logout_user()
-    flash('You have been logged out.', 'danger')
-    return redirect(url_for('login'))
+    user = g.current_user
+    response = "You were logged out successfully."
+    return jsonify(data={"user": user}, message="Logged Out")
 
-@app.route("/api/cars", methods=["POST","GET"])
+''' @app.route("/api/cars", methods=["POST","GET"])
 @login_required
 def cars():
-
+    response=''
     form=AddCarForm()
     if request.method == 'POST' :
         if form.validate_on_submit():
@@ -127,31 +158,100 @@ def cars():
             colour = request.form['colour']
             year = request.form['year']
             transmis =form.transmission.data
+            user_id = g.current_user["user_id"]
             car_type = form.car_type.data
             price = request.form['price']
+
             car=User_car(desc,make,model,colour,year,transmis, car_type, price,user_id,filename)
             db.session.add(car)
             db.session.commit()
-            successful={"message":"Registration Successful"}
-            return jsonify(successful=successful),200
+            #successful={"message":"Registration Successful"}
+            response="Car Added"
+            #return jsonify(successful=successful),200
+            return jsonify(message=response),201
         else:
             errors={"errors":form_errors(form)}
-            return jsonify(errors=errors),400
+            return jsonify(errors=errors),400 '''
 
-
-@app.route('/api/users/<int:user_id>', methods=['GET'])
+@app.route('/api/cars', methods=['POST','GET'])
+@requires_token
+def car():
+    # Instantiate your form class
+    form=AddCarForm()
+    # Validate file upload on submit
+    
+    if request.method == 'POST':
+        print(request.form['description'])
+        print(request.form['transmission'])
+        if form.validate_on_submit():
+        # Get file data and save to your uploads folder
+            make=request.form['make']
+            model=request.form['model']
+            colour=request.form['colour']
+            year=request.form['year']
+            price=request.form['price']
+            cartype=request.form['car_type']
+            print(cartype)
+            trans=request.form['transmission']
+            print(trans)
+            desc=request.form['description']
+            print(desc)
+            pic=request.files['photo'] # or form.pic.data
+            filename=secure_filename(pic.filename)
+            car=User_car(make=make,model=model,colour=colour, year=year, transmis=trans,car_type=cartype,price=price,desc=desc,photo=filename,user_id=g.current_user["user_id"])
+            #car=Cars(description=desc, make=make, model=model, colour=colour, year=year, transmission=trans, car_type=cartype, price=price, photo=pic, user_id=current_user.user_id )
+            if car is not None:
+                db.session.add(car)
+                db.session.commit()
+                pic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                jsonmsg={'message': 'Car added Successful'}  
+                return jsonify(jsonmsg=jsonmsg)
+        else:
+            return jsonify(errors=form_errors(form))
+            
+    if request.method == 'GET':
+        allc=[]
+        cars=User_car.query.order_by(User_car.car_id).all()
+        for c in cars:
+            car={}
+            car['id']=c.car_id
+            car["user_id"]=c.user_id
+            car["year"]=c.year        
+            car["price"]=c.price
+            car["photo"]=c.photo
+            car["make"]=c.make
+            car["model"]=c.model
+            allc.append(car)
+        return jsonify(allcars=allc)
+        
+''' @app.route('/api/users/<user_id>', methods=['GET'])
 @requires_token
 def userDetails(user_id):
-    user=Users.query.get(user_id)
+    #user=Users.query.get(user_id)
+    user=Users.query.filter_by(user_id=user_id).first()
     reqs={'id':user.user_id, 'username':user.username, 'name':user.name, 'email':user.email, 'location':user.location, 'biography': user.biography, 'photo':user.photo, 'date_joined': user.datejoined }
-    return jsonify(reqs)
+    print(reqs)
+    return jsonify(reqs) '''
 
+@app.route('/api/users/<user_id>', methods=['GET'])
+@requires_token
+def user_details(user_id):       
+    if request.method == 'GET':
+        print(g.current_user["user_id"])
+        userdetail=Users.query.filter_by(user_id=g.current_user["user_id"]).first()
+        date_time=userdetail.datejoined
+        user={'id':userdetail.user_id, 'username':userdetail.username,'name':userdetail.name,'email':userdetail.email,"location":userdetail.location,"biography":userdetail.biography,       
+        "photo":userdetail.photo,
+        "date_joined":date_time.strftime("%B %d, %Y")
+        }
+        return jsonify(user=user)
 
-@app.route('/api/search', methods =["GET"])
+''' @app.route('/api/search', methods =["GET"])
 @requires_token
 def search():
     form = Search()
-    if request.method=="GET" and form.validate_on_submit():
+    result=[]
+    if request.method=="GET":
         model=request.form["model"]
         make =request.form["make"]
         if model == '' and make == '':
@@ -160,9 +260,9 @@ def search():
             cars=db.session.query(User_car).filter_by(make=make).all()
         elif make == '':
             cars=db.session.query(User_car).filter_by(model=model).all()
-        else:
-            cars=db.session.query(User_car).order_by(car_id).limit(3).all()[::-1]
-        lst =[]
+        #else:
+            #cars=db.session.query(User_car).order_by(car_id).limit(3).all()[::-1]
+        
         for car in cars:
             car ={
                 "id": car.car_id,
@@ -175,14 +275,33 @@ def search():
                     "cartype": car.car_type,
                     "price": car.price,
                     "photo": car.photo,
-                    "user_id": car.user_id
+                    
                     }
-            lst.append(car)
-        return jsonify(lst)
+            result.append(car)
+        return jsonify(search=result)
     else:
         response = {"errors": form_errors(form)}
-        return  jsonify(response)
+        return  jsonify(response) '''
 
+@app.route('/api/search',methods=["GET"])
+@requires_token
+def search():
+    result=[]
+    if request.method=="GET":
+        make=request.args.get('searchmake')
+        model=request.args.get('searchmodel')
+        cars= User_car.query.filter((User_car.make.like(make)|User_car.model.like(model)))
+        for car in cars:
+            car={
+           'id':car.car_id,
+            "user_id":car.user_id,
+            "year":car.year  ,          
+            "price":car.price,
+            "photo":car.photo,
+            "make":car.make,
+            "model":car.model}
+            search.append(car)
+        return jsonify(cars=result)
 
 def flash_errors(form):
     for field, errors in form.errors.items():

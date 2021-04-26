@@ -1,5 +1,6 @@
 from . import db
 from werkzeug.security import generate_password_hash
+from flask_login._compat import unicode
 
 class Users(db.Model):
     # You can use this to change the table name. The default convention is to use

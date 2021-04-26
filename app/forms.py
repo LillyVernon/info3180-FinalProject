@@ -20,8 +20,8 @@ class AddCarForm(FlaskForm):
     year = StringField('Year', validators=[InputRequired()])
     price = StringField('Price', validators=[InputRequired()])
     car_type=SelectField('Car Type',choices=[('SUV', 'SUV'), ('Lexus','Lexus'), ('Lamborghini','Lamborghini')])
-    transmis=SelectField('Transmission',choices=[('Automatic', 'Automatic'), ('Manual','Manual')])
-    desc=TextAreaField('Description', validators=[InputRequired()])
+    transmission=SelectField('Transmission',choices=[('Automatic', 'Automatic'), ('Manual','Manual')])
+    description=TextAreaField('Description', validators=[InputRequired()])
     photo = FileField('Upload Photo', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'Images only!'])])
 
 class LoginForm(FlaskForm):
@@ -29,7 +29,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', [validators.DataRequired()])
     
 class Search(FlaskForm):
-    make=make= StringField()
-    model= StringField()
+    make=StringField('Make')
+    model=StringField('Model')
 
 
