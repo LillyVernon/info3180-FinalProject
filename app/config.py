@@ -4,7 +4,7 @@ class Config(object):
     """Base Config Object"""
     DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'Som3$ec5etK*y'
-    UPLOAD_FOLDER = './uploads/'
+    UPLOAD_FOLDER = './app/static/uploads'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://finalproject:lilly@localhost/finalproject'
     SQLALCHEMY_TRACK_MODIFICATIONS = False 
     #set SECRET_KEY=YourRandomSecretKey

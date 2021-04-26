@@ -85,5 +85,9 @@ class User_fav(db.Model):
      user_favid = db.Column(db.Integer, primary_key=True, autoincrement=True)
      car_id=db.Column(db.Integer)
      user_id = db.Column(db.Integer)
+    
+     def __init__(self, car_id, user_id):
+        self.car_id=car_id
+        self.user_id=user_id
 
 

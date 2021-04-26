@@ -109,7 +109,7 @@ label {
 
 .profilecard1 {
     padding: 40px;
-    background-color: white;
+    background-color: #F5F5F5;
 }
 
 .car-fav {
@@ -154,4 +154,14 @@ label {
     background-color: rgb(0, 189, 0);
     color: white;
     border-radius: 10px;
+}
+
+.profilepic {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+ul {
+    list-style-type: none;
 }
