@@ -1,6 +1,6 @@
 body {
     padding-top: 5rem;
-    background-color: #ccc;
+    background-color: #d8d8d8;
 }
 
 .navbar {
@@ -13,6 +13,25 @@ body {
     padding: 30px;
     width: 80%;
     border: thin black;
+}
+
+#regbtn {
+    margin-right: 20px;
+    padding: 10px 30px;
+}
+
+#loginbtn {
+    padding: 10px 30px;
+    margin-right: 305px;
+}
+
+.para {
+    text-align: left;
+}
+
+h2 {
+    font-weight: bolder;
+    font-size: 50px;
 }
 
 .lform {
@@ -49,6 +68,7 @@ input[type=file] {
 label {
     padding-right: 290px;
     margin: 10px 10px 3px 0px;
+    font-weight: bolder;
 }
 
 #location {
@@ -107,11 +127,6 @@ label {
     height: 200px;
 }
 
-.profilecard1 {
-    padding: 40px;
-    background-color: #F5F5F5;
-}
-
 .car-fav {
     padding: 0;
     margin: 0;
@@ -128,15 +143,11 @@ label {
     border-radius: 10px 10px;
     overflow: hidden;
     box-shadow: 5px 10px 10px #888888;
+    transition: 0.3s;
 }
 
-.cars-group {
-    display: grid;
-    gap: 2px;
-    grid-template-columns: repeat(3, 1fr);
-    margin-top: 35px;
-    justify-content: center;
-    align-items: center;
+.card-car:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.5);
 }
 
 .single {
@@ -145,15 +156,27 @@ label {
     height: 200px;
 }
 
+.mm {
+    font-weight: bold;
+    padding-bottom: 10px;
+    font-size: 15px;
+}
+
 .car-title {
     display: flex;
     justify-content: space-between;
+    font-weight: bold;
+}
+
+h6 {
+    font-weight: bold;
 }
 
 .price-tag {
-    background-color: rgb(0, 189, 0);
+    background-color: rgb(35, 192, 100);
     color: white;
     border-radius: 10px;
+    padding: 0px 5px;
 }
 
 .profilepic {
@@ -164,4 +187,109 @@ label {
 
 ul {
     list-style-type: none;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.explist {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: auto auto auto;
+    padding-top: 20px;
+}
+
+.exp-card {
+    border-radius: 10px;
+    background-color: white;
+    padding: 20px;
+    width: 90%;
+    border: thin black;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+.exp-container {
+    padding-left: 100px;
+    padding-bottom: 30px;
+}
+
+.exp-btn {
+    padding-top: 44px;
+}
+
+.carinfocard {
+    border: 2px solid;
+    border-color: #E2E8F0;
+    border-radius: 5px;
+    box-shadow: 5px 7px 5px #dee1e4;
+    width: 700px;
+    padding: 20px, 10px;
+}
+
+.carinfobtns {
+    gap: 20px;
+    display: flex;
+}
+
+.uname {
+    font-weight: bold;
+    font-size: 60px;
+}
+
+.profcard {
+    border-radius: 10px;
+    background-color: white;
+    padding: 20px;
+    width: 90%;
+    border: thin black;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+.usname {
+    font-size: 20px;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+
+.profpic {
+    border-radius: 50%;
+    height: 200px;
+    width: 200px;
+}
+
+.bio {
+    color: #888888;
+    font-weight: bold;
+}
+
+.biospaced {
+    display: grid;
+    grid-template-columns: auto auto;
+    font-weight: bold;
+}
+
+.rrow {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    background-color: white;
+    border-radius: 10px;
+    border: thin black;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+.ccolumn {
+    padding-right: 30px;
+}
+
+.cardimg {
+    height: 500px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 750px;
+}
+
+.model {
+    font-weight: bolder;
 }

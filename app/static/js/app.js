@@ -17,31 +17,38 @@ app.component('app-header', {
     
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li v-if="!active" class="nav-item active">
-            <router-link class="nav-link" to="/login">Login <span class="sr-only">(current)</span></router-link>
-          </li>
-          <li  v-if="!active" class="nav-item active">
-            <router-link class="nav-link" to="/register"> Register <span class="sr-only">(current)</span></router-link>
-          </li>
-          <li  v-if="active" class="nav-item active">
+          
+          <li  v-if="user_logged_in" class="nav-item active">
           <router-link class="nav-link" to="/cars/new"> Add Car <span class="sr-only">(current)</span></router-link>
         </li>
-          <li v-if="active" class="nav-item active">
+          <li v-if="user_logged_in" class="nav-item active">
           <router-link class="nav-link" to="/explore"> Explore <span class="sr-only">(current)</span></router-link>
         </li>
-        <li v-if="active" class="nav-item active">
-        <router-link class="nav-link" @click="profile()" v-bind:to="'/users/' + c_user">My Profile <span class="sr-only">(current)</span></router-link>
-      </li>
-          <li v-if="active" class="nav-item active">
+        <li v-if="user_logged_in" class="nav-item active">
+        <router-link class="nav-link" @click="profile()" v-bind:to="'/users/' + loggedinUser">My Profile <span class="sr-only">(current)</span></router-link>
+      
+        </ul>
+
+        <ul class="navbar-nav">
+        <li v-if="user_logged_in" class="nav-item active">
+            <router-link class="nav-link" to="/login">Login <span class="sr-only">(current)</span></router-link>
+          </li>
+          <li  v-if="user_logged_in" class="nav-item active">
+            <router-link class="nav-link" to="/register"> Register <span class="sr-only">(current)</span></router-link>
+          </li>
+
+        </li>
+          <li v-if="user_logged_in" class="nav-item active">
             <router-link class="nav-link" to="/logout">Logout <span class="sr-only">(current)</span></router-link>
           </li>
+
         </ul>
       </div>
     </nav>
     `,
 
     computed: {
-        active: function() {
+        user_logged_in: function() {
             if (sessionStorage.getItem('token')) {
                 return true;
             } else {
@@ -53,14 +60,14 @@ app.component('app-header', {
     methods: {
         profile: function() {
             let self = this;
-            this.$router.push("/users/" + self.c_user)
+            this.$router.push("/users/" + self.loggedinUser)
             location.reload();
         }
     },
 
     data: function() {
         return {
-            c_user: 0
+            loggedinUser: 0
         }
     },
 
@@ -74,7 +81,7 @@ app.component('app-header', {
                 return response.json();
             }).then(function(response) {
                 let result = response.data;
-                self.c_user = result.user.userid;
+                self.loggedinUser = result.user.userid;
             })
             .catch(function(error) {
                 console.log(error);
@@ -105,24 +112,26 @@ const Home = {
 
     
     <div class="row">
-        <div class="column1" style="background-color:#aaa;">
+        <div class="column1">
+        <div class="para">
             <h2> BUY AND SELL </h2> 
             <h2> CARS ONLINE </h2>
             <p> United Auto sales provides the fastest, easiest
-                    and most friendly way to buy or sell cars online. Find a Great price on the vehicle you want
+            and most friendly way to buy or sell cars online. Find a Great price on the vehicle you want
              </p>
+             </div>
 
             <span>  
             
-            <button id="reg_btn" @click="$router.push('register')" type="button" class="btn btn-success">Register</button>
-            <button id="login_btn" @click="$router.push('login')" type="button" class="btn btn-primary">Login</button>
+            <button id="regbtn" @click="$router.push('register')" type="button" class="btn btn-success">Register</button>
+            <button id="loginbtn" @click="$router.push('login')" type="button" class="btn btn-primary">Login</button>
                 
                 
             </span>
         </div>
 
 
-        <div class="column2" style="background-color:#bbb;">
+        <div class="column2">
         <img src="./static/homecar.jpg" class="homeimage">
         </div>
   </div>
@@ -145,13 +154,12 @@ const NotFound = {
     }
 };
 
-const LoginForm = {
-    name: "login-form",
+const Login = {
+    name: "login",
     data() {
         return {
-            //         isSuccessUpload:false,
+
             displayFlash: false,
-            //         successmessage:"",
             errormessage: "",
 
         }
@@ -160,11 +168,7 @@ const LoginForm = {
     template: `
     <div class = 'login-container'>
         <h2> Login to your account </h2>
-        <div class="alert alert-danger" v-if="isError">
-            <ul>
-                <li v-for="error in errors">{{ error }}</li>
-            </ul>
-        </div>
+ 
     
         <form v-on:submit.prevent="loginUser" method="POST" enctype="multipart/form-data" id="loginForm">
         <div class="card">
@@ -179,7 +183,11 @@ const LoginForm = {
             </div> 
         </form>
     </div>
-    
+    <div class="alert alert-danger" v-if="isError">
+    <ul>
+        <li v-for="error in errors">{{ error }}</li>
+    </ul>
+</div>
     `,
     data: function() {
         return {
@@ -210,7 +218,6 @@ const LoginForm = {
                     if (typeof jsonResponse.data === 'undefined') {
                         console.log(jsonResponse.message);
                         self.isError = true;
-                        //self.isSuccess=false;
                         self.errors = [jsonResponse.message];
 
                     }
@@ -254,9 +261,7 @@ const Logout = {
                 })
                 .then(function(response) {
                     let result = response.data;
-                    alert(result.user.username + " logged out!")
                     sessionStorage.removeItem('token');
-                    console.info('Token removed from sessionStorage.');
                     router.push("/")
 
                 })
@@ -271,20 +276,8 @@ const Logout = {
     }
 };
 
-
-
-
-const RegisterForm = {
-    name: "register-form",
-    data() {
-        return {
-            isSuccessUpload: false,
-            displayFlash: false,
-            successmessage: "",
-            errormessage: "",
-        }
-    },
-
+const Register = {
+    name: 'register',
     template: `
     <h1>Registration</h1>
     <div :class="errorclass"> 
@@ -293,7 +286,7 @@ const RegisterForm = {
         </ul>
     </div>
   
-        <form  method="POST" id="registerForm"  @submit.prevent="RegisterUser"> 
+        <form  method="POST" id="registerForm"  @submit.prevent="registerMethod"> 
           <div class="form-group registerform">
             <div class="First"> 
                 <label for="username"> Username</label>
@@ -326,20 +319,18 @@ const RegisterForm = {
         </div>
             </form>
     `,
-    data: function() {
+    data() {
         return {
-            errors: [],
-            successMessage: [],
-            isSuccess: false,
-            isError: false
-        };
+            messages: [],
+            className: ''
+        }
     },
-
     methods: {
-        registerUser() {
+        registerMethod() {
             let self = this;
-            let registerForm = document.getElementById('registerForm');
-            let form_data = new FormData(registerForm);
+            let uploadForm = document.getElementById('registerForm');
+            let form_data = new FormData(uploadForm)
+
             fetch("/api/register", {
                     method: 'POST',
                     body: form_data,
@@ -352,28 +343,24 @@ const RegisterForm = {
                     return response.json();
                 })
                 .then(function(jsonResponse) {
-                    console.log(jsonResponse);
-                    if (jsonResponse.errors) {
-                        self.isError = true;
-                        self.isSuccess = false;
-                        self.errors = jsonResponse.errors;
-                    } else if (jsonResponse.jsonmsg) {
-                        self.isError = false;
-                        self.isSuccess = true;
-                        self.successMessage = jsonResponse.jsonmsg;
+                    if (jsonResponse['successful']) {
+                        self.messages = [jsonResponse['successful']['message']];
+                        self.className = "successful"
+                    } else {
+                        self.messages = jsonResponse['errors']['errors'];
+                        self.className = "errors"
                     }
-                })
 
-            .catch(function(error) {
-                //this.errormessage = "Something went wrong"
-                console.log(error);
-            });
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
 
         }
-
-    },
-
+    }
 };
+
+
 
 const CarForm = {
     name: "car-form",
@@ -390,10 +377,7 @@ const CarForm = {
      <div class = 'addcar-container'>
          <h2> Add New Car </h2>
  
-         <div class="alert alert-success" v-if="isSuccess">
-                 <p v-for="success in successMessage">{{ success }}</p>
-         </div>
- 
+
          <div class="alert alert-danger" v-if="isError">
                  <ul>
                      <li v-for="error in errors">{{ error }}</li>
@@ -466,7 +450,10 @@ const CarForm = {
          </div>
          </form>
      </div>
-     
+<div class="alert alert-success" v-if="isSuccess">
+     <p v-for="success in successMessage">{{ success }}</p>
+</div>
+
      `,
 
     data: function() {
@@ -505,10 +492,10 @@ const CarForm = {
                         self.isError = true;
                         self.isSuccess = false;
                         self.errors = jsonResponse.errors;
-                    } else if (jsonResponse.jsonmsg) {
+                    } else if (jsonResponse.success) {
                         self.isError = false;
                         self.isSuccess = true;
-                        self.successMessage = jsonResponse.jsonmsg;
+                        self.successMessage = jsonResponse.success;
 
                     }
                 })
@@ -524,58 +511,51 @@ const CarForm = {
 
 const Explore = {
     name: "explore",
-    /*data(){
-        return{
-            isSuccessUpload:false,
-            displayFlash:false,
-            successmessage:"",
-            errormessage:"",      
-        }
-    },*/
 
     template: `
     <div>
-        <div class = "explore-container">
-            <h2> Explore </h2>
+        <div class = "exp-container">
+            <h2> Explore </h2><br>
             
         
             <form v-on:submit.prevent="exploreSearch" method="GET" enctype="multipart/form-data" id="searchForm">
-            <div class = "explore-card">
+            <div class = "exp-card">
                 <div class="form-group">
                     <div class = "form-row">
                         <div class = "col">
-                            <label> Make </label><br>
+                            <label class = "mm"> Make </label><br>
                             <input type="text" class = "form-control" name="searchbymake" v-model="searchMake"><br>
                         </div>
                         <div class = "col">
-                            <label> Model </label><br>
+                            <label class = "mm"> Model </label><br>
                             <input type="text" class = "form-control" name="searchbymodel" v-model="searchModel"><br>
+                        </div>
+                        <div class = "exp-btn">
+                        <button class="btn btn-success" > Search </button>
                         </div>
                     
                     </div>
-                    <div class = "explore-btn">
-                        <button class="btn btn-success" > Search </button>
-                    </div>
+                    <br>
+                    
                     
                 </div>
             </div>
             </form>
             </div>
-            <ul class="explorelist">    
+
+            <ul class="explist">    
             <li v-for="car in allcars">
-
-
 
         <div class="cars-group "> 
                 <div class="card-car ">
                     <img class="single img-top" id="car_img" :src="'/static/uploads/'  + car.photo" alt="car img">
                     <div class = "card-body">
                         <div class = "car-title">
-                            <h6 id="title1">{{car.year}} {{car.make}} </h6>
+                            <h6 id="titles">{{car.year}} {{car.make}} </h6>
                             <span id="price1" class="price-tag"> $ {{car.price}} </span>
                         </div>
                         <p class="car-text"> {{car.model}} </p>
-                        <button @click="carinfo(car.id)" class="btn btn-primary btn-block"> View More Details </button>
+                        <button @click="carinfo(car.id)" class="btn btn-dark btn-block"> View More Details </button>
                     </div>
                 </div> 
         </div>
@@ -646,51 +626,48 @@ const Explore = {
     }
 };
 
-const CarInfo = {
+const Cardetails = {
     name: "carinfo",
     props: ['car_id'],
     template: `
-    <div>
-        <div class="container-fluid">
-            <div class="carinfocard">
-                <div class="img-square-wrapper">
-                    <img id="car_img" :src="'/static/uploads/' + photo" alt="car img" class="card-img-top"> 
+    <div class ="rrow">
+        <div class = "ccolumn">
+        <img id="car_img" :src="'/static/uploads/' + photo" alt="car img" class="cardimg">
+        </div>
+        <div class = "cccolumn">
+
+                <div class = "yearmake">
+                    <h3 class = "card-title">  {{ year }}  {{ make }} </h3> <br>
+                    <p class="model"> {{model}} </p>
+
+                    <p> {{description}} </p> 
                 </div>
-                <div class = "card-body">
-                    <div class = "yearmake">
-                            <h2 class = "card-title">  {{ year }}  {{ make }} </h2> <br> 
-                    </div>
-                    <p class="model"> {{model}} </p>  
-                    <p class="card-text"> {{description}} </p>
-                    <div class = "form-row">
-                        <div class = "col">
-                            <label>Colour</label>
-                            <p class="card-text"> {{colour}} </p> <br>
-                        </div>
-                        <div class = "col">
-                            <label>Body Type</label>
-                            <p class="card-text"> {{car_type}} </p> <br>
-                        </div>
-                    </div>
-                    <div class = "form-row">
-                        <div class = "col">
-                            <label>Price</label>
-                            <p class="card-text"> {{price}} </p> <br>
-                        </div>
-                        <div class = "col">
-                            <label>Transmission</label>
-                            <p class="card-text"> {{transmission}} </p> <br>
-                        </div>
-                    </div>
+
+
+
+                <div class = "cinfobody">
+                    <label>Colour</label>
+                    <p class="card-text"> {{colour}} </p>
+
+                    <label>Body Type</label>
+                    <p class="card-text"> {{car_type}} </p> 
+
+                    <label>Price</label>
+                    <p class="card-text"> {{price}} </p> 
+
+                    <label>Transmission</label>
+                    <p class="card-text"> {{transmission}} </p> 
+
                     <div class = "carinfobtns">
                         <button class="btn btn-success" > Email Owner </button>
                         <button v-if="faved" type="button" class="btn btn-default btn-circle">
-                           THis iz  a fav button
+                           Add to Favourites
                         </button>
-                        <button v-else" @click="favouritecar(car_id)" type = "button" class="btn btn-default btn-circle" >  
-                            
+                        <button v-else" @click="favouritecar(car_id)" type = "button" class="btn btn-default btn-circle" style="background-color: blue; color:white" >    
+                        Add to Favorites!  
                         </button>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -709,7 +686,7 @@ const CarInfo = {
             make: "",
             car_type: "",
             photo: "",
-            faved: false
+            favorite: false
 
 
 
@@ -740,13 +717,12 @@ const CarInfo = {
                     self.photo = jsonResponse.photo;
                     self.car_type = jsonResponse.car_type;
                     self.price = jsonResponse.price;
-                    self.faved = jsonResponse.Faved;
+                    self.favorite = jsonResponse.Faved;
                     console.log(jsonResponse);
 
 
                 })
                 .catch(function(error) {
-                    //this.errormessage = "Something went wrong"
                     console.log(error);
                 });
 
@@ -756,7 +732,6 @@ const CarInfo = {
                 .then(function(response) {
                     return response.json();
                 }).then(function(jsonResponse) {
-                    // display a success message
                     console.log(jsonResponse.message);
                     location.reload()
                 }).catch(function(error) {
@@ -774,55 +749,47 @@ const UserProfile = {
     props: ['user_id'],
     template: `
 
-    <div class="profilecard1 container">
+    <div class="profcard">
     <div class="row">
         <div class = "person-img col-3"  v-if="user !==null">
-            <img v-bind:src="'/static/uploads/' + user.photo" / class="profilepic"> 
+            <img v-bind:src="'/static/uploads/' + user.photo" / class="profpic"> 
         </div>
 
         <div class="profilecard-body col-6"  v-if="user !==null">
-        <p>Name: {{user.name}}</p> 
-        <p>Username: {{user.username}} </p>
-        <p>Bio: {{user.biography}} </p>
-        <p>Email: {{user.email}} </p>
-        <p>Location: {{user.location}} </p>
-        <p>Joined: {{user.date_joined}} </p>
+        <h1 class = "uname"> {{user.name}}</h1> 
+        <p class = "usname">@{{user.username}} </p>
+        <p class = "bio">{{user.biography}} </p>
+        <div class = "biospaced">
+        <p class = "bio">Email </p> {{user.email}}
+        <p class = "bio">Location </p>{{user.location}}
+        <p class = "bio">Joined</p> {{user.date_joined}}
+        </div>
         </div>
     </div>
 </div>
-<div class="car-fav">
-    <h4> Cars Favorited </h4>
-</div>
-
-
+        <br><br>
+        <h2 > Cars Favourited </h2>
     
+        <ul class="explist">    
+        <li v-for="car in allcars">
 
-       
-        
-        <h2 class="f_cars_lbl"> Cars Favourited </h2>
-        
-    <ul>
- 
-        <li v-for="car in allcars" class="car_Card">
-            <div class = "details-card-group">
-                <div class ="details-card" style="width: 22rem;">
-                    <img class="card-img-top" id="car_img" :src="'/static/uploads/'  + car.photo" alt="car img"> 
-                        <div class = "card-body">
-                            <div class = "top-card">
-                                <h5 class = "card-title">  {{car.year}}  </h5>
-                                <h5 class= "card-title">  {{car.make}}  </h5>
-                                <div class="price">
-                                <p class="card-text">  {{car.price}}  </p>
-                                </div>
-                            </div>
-                            <p class="card-text">  {{car.model}}  </p>
-                        </div>    
-                   
-                    <button @click="carinfo(car.id)" class="btn btn-primary btn-block"> View More Details </button>
+    <div class="cars-group "> 
+            <div class="card-car ">
+                <img class="single img-top" id="car_img" :src="'/static/uploads/'  + car.photo" alt="car img">
+                <div class = "card-body">
+                    <div class = "car-title">
+                        <h6 id="titles">{{car.year}} {{car.make}} </h6>
+                        <span id="price1" class="price-tag"> $ {{car.price}} </span>
+                    </div>
+                    <p class="car-text"> {{car.model}} </p>
+                    <button @click="carinfo(car.id)" class="btn btn-dark btn-block"> View More Details </button>
                 </div>
-            </div>
+            </div> 
+    </div>
+
+            
         </li>
-    </ul>
+        </ul>
     
         </div>
         `,
@@ -891,11 +858,11 @@ const UserProfile = {
 // Define Routes
 const routes = [
     { path: "/", component: Home },
-    { path: "/register", component: RegisterForm },
-    { path: "/login", component: LoginForm },
+    { path: "/register", component: Register },
+    { path: "/login", component: Login },
     { path: "/cars/new", component: CarForm },
     { path: "/explore", component: Explore },
-    { path: "/cars/:car_id", component: CarInfo, props: true },
+    { path: "/cars/:car_id", component: Cardetails, props: true },
     { path: "/logout", component: Logout },
     { path: "/users/:user_id", component: UserProfile, props: true },
 
