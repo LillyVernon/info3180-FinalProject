@@ -663,7 +663,7 @@ const Cardetails = {
                         <button v-if="faved" type="button" class="btn btn-default btn-circle">
                            Add to Favourites
                         </button>
-                        <button v-else" @click="favouritecar(car_id)" type = "button" class="btn btn-default btn-circle" style="background-color: blue; color:white" >    
+                        <button v-else" @click="favouritecar(car_id)" type = "button" class="btn btn-default btn-circle" style="background-color: blue; color: white" >    
                         Add to Favorites!  
                         </button>
                     </div>
